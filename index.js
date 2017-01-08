@@ -41,7 +41,7 @@ var server = http.createServer( function( req , res ) {
 
 		if ( url == '/' ) {
 			res.writeHead( 200 , { 'Content-Type': 'application/json' } ) ;
-			res.end( JSON.stringify( {"url":null,"shortURL":null} ) ) ;
+			res.end( JSON.stringify( { "error" : "Invalid URL" }  ) ) ;
 			db.close( ) ;
 
 		} else {
