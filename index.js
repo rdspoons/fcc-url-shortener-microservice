@@ -7,10 +7,12 @@ var urlString = "abcdfghijklmnopqrstuvwzyzABCDFGHIJKLMNOPQRSTUVWXYZ" ;
 var urlStringLength = urlString.length ;
 
 function numb(n){
+
 	return urlString[n % urlStringLength ];
 }
 
 function shortenURL( url, cnt ){
+
 	var pow = 6 ,
 	    newURL = '';
 
@@ -29,6 +31,9 @@ function shortenURL( url, cnt ){
 }
 
 var server = http.createServer( function( req , res ) {
+
+	var host = req.headers[ 'x-forwarded-proto' ] + '://' +  req.headers[ 'host' ] + '/' ;
+
 	mongo.connect( dbURI , function( err , db ) {
 		if (err) throw err
 		var url = req.url ,
@@ -38,7 +43,9 @@ var server = http.createServer( function( req , res ) {
 			res.writeHead( 200 , { 'Content-Type': 'application/json' } ) ;
 			res.end( JSON.stringify( {"url":null,"shortURL":null} ) ) ;
 			db.close( ) ;
+
 		} else {
+
 			url = url.substr( 1 , url.length - 1 ) ;
 			var json = { url: url, shortURL: null } ;
 			var urlCount = URLs.count( {} , function( err, count ) {
@@ -63,11 +70,13 @@ var server = http.createServer( function( req , res ) {
         	                                        	if ( err ) throw err ;
                 	                                } ) ;
 
-							json = { url : json.url, shortURL : json.shortURL } ;
+							json = { url : json.url, shortURL : host + json.shortURL } ;
 
 						} else {
-							json.shortURL = docs[ 0 ].shortURL ;
+
+							json.shortURL = host + docs[ 0 ].shortURL ;
 						}
+
 						res.writeHead( 200 , { 'Content-Type': 'application/json' } ) ;
 						var response = JSON.stringify( json ) ;
 						db.close( ) ;
@@ -87,14 +96,20 @@ var server = http.createServer( function( req , res ) {
                                         } ).toArray( function( err , docs ) {
                                                 if ( err ) throw err ;
                                                 if( docs.length === 0 ) {
-							json = { "url" : null, "shortURL" : null } ;
+
+							json = { "error" : "Invalid URL" } ;
+
+							res.writeHead( 200 , { 'Content-Type': 'application/json' } ) ;
+							var response = JSON.stringify( json ) ;
+                                                	db.close( ) ;
+                                                	res.end( response ) ;
+
                                                 } else {
-                                                        json = docs[ 0 ] ;
+
+							res.writeHead( 302 , { 'Location' : docs[ 0 ].url } ) ;
+							db.close( ) ;
+							res.end( );
                                                 }
-                                                res.writeHead( 200 , { 'Content-Type': 'application/json' } ) ;
-                                                var response = JSON.stringify( json ) ;
-                                                db.close( ) ;
-                                                res.end( response ) ;
                                         } )
 				}
 			} )
