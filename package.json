@@ -1,0 +1,15 @@
+{
+  "name": "fcc-url-shortener",
+  "version": "1.0.0",
+  "description": "fcc url shortener",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mongodb": "^2.2.19"
+  }
+}
